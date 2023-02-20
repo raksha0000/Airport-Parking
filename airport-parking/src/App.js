@@ -1,16 +1,22 @@
 
 import './style.css';
 import HomePage from './pages/Home';
-import Header from './component/Header';
-import Footer from './component/Footer';
+import Layout from './component/Layout';
+import Login from './pages/Login';
+import { Routes, Route,BrowserRouter } from "react-router-dom";
+
 
 function App() {
   return (
-    <div id="app" className="generic">
-      <Header />
-      <HomePage />
-      <Footer />
-      </div>
+     <BrowserRouter >
+     <Routes>
+     <Route path="/" element={<Layout />}>
+       <Route index element={<HomePage />} />
+       <Route path="login" element={<Login />} />
+       <Route path="*" element={<HomePage />} />
+     </Route>
+   </Routes>
+   </BrowserRouter >
   );
 }
 
