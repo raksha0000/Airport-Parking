@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import moment from 'moment'
 
 
 const SearchForm = () => {
+    const today = moment().format('YYYY-MM-DD').toString()
+    const tomorrow = moment().add(1, 'days').format('YYYY-MM-DD').toString()
     const [departureAirport, setDepartureAirPort] = useState('')
-    const [checkin, setCheckIn] = useState('')
-    const [checkout, setCheckOut] = useState('')
+    const [checkin, setCheckIn] = useState(today)
+    const [checkout, setCheckOut] = useState(tomorrow)
     const [errors, setErrors] = useState({})
 
 
@@ -34,11 +37,17 @@ const SearchForm = () => {
         } else {
             setErrors((err) => ({ ...err, checkout: true }))
         }
+        if(moment(checkin) > moment(checkout)){
+            setErrors((err)=>({...err, checkout:true}))
+        }
     }
 
     const onSubmit = (e) => {
         e.preventDefault();
-        if (departureAirport && checkin && checkout) {
+        if(moment(checkin) > moment(checkout)){
+            setErrors((err)=>({...err, checkout:true}))
+        }
+        else if (departureAirport && checkin && checkout) {
             window.location.href = `/results?departureAirport=${departureAirport}&checkin=${checkin}&checkout=${checkout}`
         } else {
             setErrors({
@@ -77,22 +86,37 @@ const SearchForm = () => {
                     <div className="placeholder placeholder-airport">
                         <input error name="departure-airport" value={departureAirport} onChange={handleChangeDepartureAirport} type="text" placeholder="Departure Airport" className="placeholder placeholder-airport" />
                     </div> <i className="fas fa-map-marker-alt input-icon"></i>
-                    {errors && errors.departureAirport && <div className="error">Invalid Departure Airport</div>}
+                    {errors && errors.departureAirport && <div className="alert alert-danger">Invalid Departure Airport</div>}
                 </label>
                     <div className="col p-0 row m-0 mb-2 dates"><label
                         className="col-sm-6 p-0 pr-sm-3 date_input">
                         <div className="heading mb-1">Parking Check-In</div>
                         <div className="placeholder">
-                            <input value={checkin} onChange={handleChangeCheckIn} name="checkin" type="date" placeholder="Parking Check-Out" className="placeholder placeholder-airport"
-                                style={{ width: "100%" }} />
+                            <input
+                                value={checkin}
+                                onChange={handleChangeCheckIn}
+                                name="checkin"
+                                type="date"
+                                placeholder="Parking Check-Out"
+                                className="placeholder placeholder-airport"
+                                style={{ width: "100%" }}
+                               
+                                 />
                         </div>
-                        {errors && errors.checkin && <div className="error">Invalid checkin Date</div>}
+                        {errors && errors.checkin && <div className="alert alert-danger">Invalid checkin Date</div>}
                     </label>
                         <label className="col-sm-6 p-0 pl-sm-0 date_input">
                             <div className="heading mb-1">Parking Check-Out</div>
-                            <input value={checkout} onChange={handleChangeCheckOut} name="Check-Out" type="date" placeholder="Parking Check-Out"
-                                className="placeholder placeholder-airport" style={{ width: "100%" }} />
-                            {errors && errors.checkout && <div className="error">Invalid checkout Date</div>}
+                            <input
+                                value={checkout}
+                                onChange={handleChangeCheckOut}
+                                name="Check-Out"
+                                type="date"
+                                placeholder="Parking Check-Out"
+                                className="placeholder placeholder-airport"
+                                style={{ width: "100%" }}
+                            />
+                            {errors && errors.checkout && <div className="alert alert-danger">Invalid checkout Date</div>}
                         </label>
                     </div>
                     <div className="col-12 col-xl-2 p-0 pl-xl-3 my-3 my-xl-0">
