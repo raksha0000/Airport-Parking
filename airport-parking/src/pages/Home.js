@@ -1,23 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import moment from 'moment'
+import axios from 'axios';
+import AirportSuggetions from '../component/AirportSuggestions';
 
 
 const SearchForm = () => {
     const today = moment().format('YYYY-MM-DD').toString()
     const tomorrow = moment().add(1, 'days').format('YYYY-MM-DD').toString()
+    const [airports, setAirports] = useState([])
+    const [filteredAirports, setFilteredAirports] = useState([])
     const [departureAirport, setDepartureAirPort] = useState('')
     const [checkin, setCheckIn] = useState(today)
     const [checkout, setCheckOut] = useState(tomorrow)
     const [errors, setErrors] = useState({})
 
 
+    const getAirport = async () => {
+        try {
+            const { data, status } = await axios.get('http://localhost:9009/v1/airports');
+            if (status === 200 && data) {
+                setAirports(data?.results ?? [])
+            } else {
+                setAirports([])
+            }
+        } catch (error) {
+            alert(error.message)
+        }
+    }
+
+    useEffect(() => {
+        getAirport()
+    }, [])
+
     const handleChangeDepartureAirport = (e) => {
         setDepartureAirPort(e.target.value)
         if (e.target.value) {
             setErrors((err) => ({ ...err, departureAirport: false }))
+
         } else {
             setErrors((err) => ({ ...err, departureAirport: true }))
         }
+        const filterAirportsData = airports.filter((airport) => airport.name.toLowerCase().includes(e.target.value.toLowerCase()));
+        setFilteredAirports(filterAirportsData ?? [])
     }
 
     const handleChangeCheckIn = (e) => {
@@ -37,15 +61,15 @@ const SearchForm = () => {
         } else {
             setErrors((err) => ({ ...err, checkout: true }))
         }
-        if(moment(checkin) > moment(checkout)){
-            setErrors((err)=>({...err, checkout:true}))
+        if (moment(checkin) > moment(checkout)) {
+            setErrors((err) => ({ ...err, checkout: true }))
         }
     }
 
     const onSubmit = (e) => {
         e.preventDefault();
-        if(moment(checkin) > moment(checkout)){
-            setErrors((err)=>({...err, checkout:true}))
+        if (moment(checkin) > moment(checkout)) {
+            setErrors((err) => ({ ...err, checkout: true }))
         }
         else if (departureAirport && checkin && checkout) {
             window.location.href = `/results?departureAirport=${departureAirport}&checkin=${checkin}&checkout=${checkout}`
@@ -58,6 +82,11 @@ const SearchForm = () => {
         }
 
 
+    }
+
+    const selectAirport =(value)=>{
+        setDepartureAirPort(value)
+        setFilteredAirports([])
     }
 
 
@@ -84,9 +113,10 @@ const SearchForm = () => {
                 <div className="options row m-0"><label className="col-12 col-xl-3 p-0 mr-xl-3 mb-2">
                     <div className="heading mb-1">Departure Airport</div>
                     <div className="placeholder placeholder-airport">
-                        <input  name="departure-airport" value={departureAirport} onChange={handleChangeDepartureAirport} type="text" placeholder="Departure Airport" className="placeholder placeholder-airport" />
+                        <input name="departure-airport" value={departureAirport} onChange={handleChangeDepartureAirport} type="text" placeholder="Departure Airport" className="placeholder placeholder-airport" />
                     </div> <i className="fas fa-map-marker-alt input-icon"></i>
                     {errors && errors.departureAirport && <div className="alert alert-danger">Invalid Departure Airport</div>}
+                    <AirportSuggetions airports={filteredAirports} selectAirport={selectAirport} />
                 </label>
                     <div className="col p-0 row m-0 mb-2 dates"><label
                         className="col-sm-6 p-0 pr-sm-3 date_input">
@@ -100,10 +130,11 @@ const SearchForm = () => {
                                 placeholder="Parking Check-Out"
                                 className="placeholder placeholder-airport"
                                 style={{ width: "100%" }}
-                               
-                                 />
+
+                            />
                         </div>
                         {errors && errors.checkin && <div className="alert alert-danger">Invalid checkin Date</div>}
+                       
                     </label>
                         <label className="col-sm-6 p-0 pl-sm-0 date_input">
                             <div className="heading mb-1">Parking Check-Out</div>
