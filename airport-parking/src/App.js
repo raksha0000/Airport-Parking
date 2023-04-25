@@ -1,26 +1,49 @@
-
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
+import { BrowserRouter, Routes, Route, useLocation, Navigate, } from "react-router-dom";
+import Layout from "./component/Layout";
+import AirportAvailability from "./pages/AirportAvailability";
+import HomePage from "./pages/Home";
+import Login from "./pages/Login";
+//import Profile from "./pages/Profile";
 import './style.css';
-import HomePage from './pages/Home';
-import Layout from './component/Layout';
-import Login from './pages/Login';
-import AirportAvailability from './pages/AirportAvailability';
-import { Routes, Route,BrowserRouter } from "react-router-dom";
+import {useSelector} from './redux';
 
-
-function App() {
+export default function App() {
   return (
-     <BrowserRouter >
-     <Routes>
-     <Route path="/" element={<Layout />}>
-       <Route index element={<HomePage />} />
-       <Route path="results" element={<AirportAvailability />} />
-       <Route path="login" element={<Login />} />
-       <Route path="*" element={<HomePage />} />
-     </Route>
-   </Routes>
-   </BrowserRouter >
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="results" element={<AirportAvailability />} />
+
+            <Route
+              path="/profile"
+              element={
+                <RequireAuth>
+                  {/*<Profile />*/}
+                </RequireAuth>
+              }
+            />
+            <Route path="*" element={<HomePage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
   );
 }
 
-export default App;
+
+function RequireAuth({ children }) {
+  const {authenticated}=useSelector((s)=>s.session)
+  let location = useLocation();
+
+  if (!authenticated) {
+    // Redirect them to the /login page, but save the current location they were
+    // trying to go to when they were redirected. This allows us to send them
+    // along to that page after they login, which is a nicer user experience
+    // than dropping them off on the home page.
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}

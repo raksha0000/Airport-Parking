@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import moment from 'moment';
-import AirportSuggetions from '../component/AirportSuggestions';
-
+import moment from 'moment'
 import axios from 'axios';
+import AirportSuggetions from '../component/AirportSuggestions';
 
 
 const SearchForm = () => {
@@ -20,7 +19,7 @@ const SearchForm = () => {
         try {
             const { data, status } = await axios.get('http://localhost:9009/v1/airports');
             if (status === 200 && data) {
-                setAirports(data.results)
+                setAirports(data?.results ?? [])
             } else {
                 setAirports([])
             }
@@ -30,7 +29,7 @@ const SearchForm = () => {
     }
 
     useEffect(() => {
-        // getAirport()
+        getAirport()
     }, [])
 
     const handleChangeDepartureAirport = (e) => {
@@ -42,7 +41,7 @@ const SearchForm = () => {
             setErrors((err) => ({ ...err, departureAirport: true }))
         }
         const filterAirportsData = airports.filter((airport) => airport.name.toLowerCase().includes(e.target.value.toLowerCase()));
-        setFilteredAirports(filterAirportsData )
+        setFilteredAirports(filterAirportsData ?? [])
     }
 
     const handleChangeCheckIn = (e) => {
@@ -192,7 +191,7 @@ const HomePage = (props) => {
 
                             <ul className="row">
                                 <li className="col-12 col-lg-4 p-3">
-                                    <img src={`${process.env.PUBLIC_URL}/assets/check.png`} alt="Tick" width="50" height="50" />
+                                    <img src="/assets/check.png" alt="Tick" width="50" height="50" />
                                     <div>
                                         <h6>Save Money</h6>
                                         <p>Save up to 70% off on our site compared to the cost of on-airport
@@ -200,7 +199,7 @@ const HomePage = (props) => {
                                     </div>
                                 </li>
                                 <li className="col-12 col-lg-4 p-3">
-                                    <img src={`${process.env.PUBLIC_URL}/assets/check.png`} alt="Tick" width="50" height="50" />
+                                    <img src="/assets/check.png" alt="Tick" width="50" height="50" />
                                     <div>
                                         <h6>Save Time</h6>
                                         <p>
@@ -210,7 +209,7 @@ const HomePage = (props) => {
                                     </div>
                                 </li>
                                 <li className="col-12 col-lg-4 p-3">
-                                    <img src={`${process.env.PUBLIC_URL}/assets/check.png`} alt="Tick" width="50" height="50" />
+                                    <img src="/assets/check.png" alt="Tick" width="50" height="50" />
                                     <div>
                                         <h6>Save Stress</h6>
                                         <p>
